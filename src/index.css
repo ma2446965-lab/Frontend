@@ -12,6 +12,11 @@
   --color-primary-900: #4c1d95;
 }
 
+html {
+  scroll-padding-top: 5.5rem; /* Navbar height h-20 (80px) is 5rem. We use 5.5rem (88px) to give beautiful breathing space above section headings */
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif;
   scroll-behavior: smooth;

@@ -68,90 +68,184 @@ export default function App() {
   // GSAP Entrance and Scroll Trigger Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Hero entrance staggering
+      // 1. Hero entrance staggering (Always runs on page load)
       const heroTl = gsap.timeline()
       heroTl.from('.hero-reveal', {
         opacity: 0,
-        y: 35,
+        y: 30,
         duration: 0.8,
-        stagger: 0.15,
+        stagger: 0.12,
         ease: 'power3.out'
       })
 
-      // 2. Trust Bar Fade In
-      gsap.from('.trust-bar-item', {
-        opacity: 0,
-        y: 15,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '#trust-bar',
-          start: 'top 85%',
-          toggleActions: 'play none none reverse'
-        }
+      // Use GSAP MatchMedia for pixel-perfect responsive layouts
+      const mm = gsap.matchMedia()
+
+      // Desktop Animations (768px and up)
+      mm.add("(min-width: 768px)", () => {
+        // Trust Bar Fade In
+        gsap.from('.trust-bar-item', {
+          opacity: 0,
+          y: 15,
+          duration: 0.6,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#trust-bar',
+            start: 'top 85%',
+            toggleActions: 'play none none reverse'
+          }
+        })
+
+        // Feature Grid Scroll Stagger
+        gsap.from('.feature-card', {
+          opacity: 0,
+          y: 40,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '#features-section',
+            start: 'top 75%',
+            toggleActions: 'play none none reverse'
+          }
+        })
+
+        // Dashboard Mockup Reveal
+        gsap.from('.dashboard-reveal', {
+          opacity: 0,
+          scale: 0.95,
+          y: 50,
+          duration: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '#dashboard-section',
+            start: 'top 70%',
+            toggleActions: 'play none none reverse'
+          }
+        })
+
+        // Testimonial Stagger
+        gsap.from('.testimonial-card', {
+          opacity: 0,
+          y: 30,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#testimonial-section',
+            start: 'top 75%',
+            toggleActions: 'play none none reverse'
+          }
+        })
+
+        // Pricing Tier Stagger
+        gsap.from('.pricing-card', {
+          opacity: 0,
+          y: 40,
+          duration: 0.8,
+          stagger: 0.15,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: '#pricing-section',
+            start: 'top 75%',
+            toggleActions: 'play none none reverse'
+          }
+        })
       })
 
-      // 3. Feature Grid Scroll Stagger
-      gsap.from('.feature-card', {
-        opacity: 0,
-        y: 40,
-        duration: 0.7,
-        stagger: 0.12,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '#features-section',
-          start: 'top 75%',
-          toggleActions: 'play none none reverse'
-        }
+      // Mobile & Tablet Animations (Under 768px)
+      // Highly tolerant trigger thresholds to prevent elements getting stuck or black empty gaps on small viewport scrolls
+      mm.add("(max-width: 767px)", () => {
+        // Trust Bar Fade In
+        gsap.from('.trust-bar-item', {
+          opacity: 0,
+          y: 10,
+          duration: 0.5,
+          stagger: 0.05,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: '#trust-bar',
+            start: 'top 95%', // Trigger as soon as the top enters viewport even slightly
+            toggleActions: 'play none none none' // Avoid reverse on scroll up to lock in visibility
+          }
+        })
+
+        // Feature Grid
+        gsap.from('.feature-card', {
+          opacity: 0,
+          y: 20,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#features-section',
+            start: 'top 95%', // Triggers much higher to reveal earlier on small mobile heights
+            toggleActions: 'play none none none'
+          }
+        })
+
+        // Dashboard Mockup Reveal
+        gsap.from('.dashboard-reveal', {
+          opacity: 0,
+          y: 30,
+          duration: 0.7,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#dashboard-section',
+            start: 'top 95%',
+            toggleActions: 'play none none none'
+          }
+        })
+
+        // Testimonial Stagger
+        gsap.from('.testimonial-card', {
+          opacity: 0,
+          y: 20,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power1.out',
+          scrollTrigger: {
+            trigger: '#testimonial-section',
+            start: 'top 95%',
+            toggleActions: 'play none none none'
+          }
+        })
+
+        // Pricing Cards
+        gsap.from('.pricing-card', {
+          opacity: 0,
+          y: 20,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+          scrollTrigger: {
+            trigger: '#pricing-section',
+            start: 'top 95%',
+            toggleActions: 'play none none none'
+          }
+        })
       })
 
-      // 4. Dashboard Mockup Reveal
-      gsap.from('.dashboard-reveal', {
-        opacity: 0,
-        scale: 0.95,
-        y: 50,
-        duration: 1,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '#dashboard-section',
-          start: 'top 70%',
-          toggleActions: 'play none none reverse'
-        }
-      })
-
-      // 5. Testimonial Stagger
-      gsap.from('.testimonial-card', {
-        opacity: 0,
-        y: 30,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power2.out',
-        scrollTrigger: {
-          trigger: '#testimonial-section',
-          start: 'top 75%',
-          toggleActions: 'play none none reverse'
-        }
-      })
-
-      // 6. Pricing Tier Stagger
-      gsap.from('.pricing-card', {
-        opacity: 0,
-        y: 40,
-        duration: 0.8,
-        stagger: 0.15,
-        ease: 'power3.out',
-        scrollTrigger: {
-          trigger: '#pricing-section',
-          start: 'top 75%',
-          toggleActions: 'play none none reverse'
-        }
-      })
+      // Force recalculation of scroll trigger points 1s after initial mount
+      // to account for dynamic canvas render dimensions or loaded unsplash images
+      setTimeout(() => {
+        ScrollTrigger.refresh()
+      }, 1000)
 
     }, appContainerRef)
 
-    // Cleanup GSAP context on unmount
-    return () => ctx.revert()
+    // Trigger full ScrollTrigger refresh on window fully loaded to prevent offset bugs
+    const handleLoad = () => {
+      ScrollTrigger.refresh()
+    }
+    window.addEventListener('load', handleLoad)
+
+    // Cleanup GSAP context & listener
+    return () => {
+      ctx.revert()
+      window.removeEventListener('load', handleLoad)
+    }
   }, [])
 
   // Fictional Trust Partners
@@ -388,7 +482,7 @@ export default function App() {
       </header>
 
       {/* Cinematic Hero Section */}
-      <section className="relative pt-32 pb-24 md:pt-48 md:pb-40 flex items-center min-h-[90vh] overflow-hidden">
+      <section id="home-section" className="relative pt-32 pb-24 md:pt-48 md:pb-40 flex items-center min-h-[90vh] overflow-hidden">
         
         {/* Three.js 3D Background */}
         <ThreeHero />
