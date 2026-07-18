@@ -65,10 +65,10 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const appContainerRef = useRef(null)
 
-  // GSAP Entrance and Scroll Trigger Animations
+  // 1. GSAP Entrance and Scroll Trigger Animations
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Hero entrance staggering (Always runs on page load)
+      // Hero entrance staggering (Always runs on page load)
       const heroTl = gsap.timeline()
       heroTl.from('.hero-reveal', {
         opacity: 0,
@@ -155,80 +155,74 @@ export default function App() {
       })
 
       // Mobile & Tablet Animations (Under 768px)
-      // Highly tolerant trigger thresholds to prevent elements getting stuck or black empty gaps on small viewport scrolls
+      // Highly robust 'top bottom' (triggers on absolute entrance) + play none none none (prevent stuck state on fast scrolls)
       mm.add("(max-width: 767px)", () => {
-        // Trust Bar Fade In
         gsap.from('.trust-bar-item', {
           opacity: 0,
           y: 10,
-          duration: 0.5,
+          duration: 0.4,
           stagger: 0.05,
           ease: 'power1.out',
           scrollTrigger: {
             trigger: '#trust-bar',
-            start: 'top 95%', // Trigger as soon as the top enters viewport even slightly
-            toggleActions: 'play none none none' // Avoid reverse on scroll up to lock in visibility
+            start: 'top bottom', // Triggers instantly when top of section meets bottom of screen
+            toggleActions: 'play none none none'
           }
         })
 
-        // Feature Grid
         gsap.from('.feature-card', {
           opacity: 0,
           y: 20,
-          duration: 0.5,
-          stagger: 0.08,
+          duration: 0.4,
+          stagger: 0.05,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: '#features-section',
-            start: 'top 95%', // Triggers much higher to reveal earlier on small mobile heights
+            start: 'top bottom',
             toggleActions: 'play none none none'
           }
         })
 
-        // Dashboard Mockup Reveal
         gsap.from('.dashboard-reveal', {
           opacity: 0,
-          y: 30,
-          duration: 0.7,
+          y: 20,
+          duration: 0.5,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: '#dashboard-section',
-            start: 'top 95%',
+            start: 'top bottom',
             toggleActions: 'play none none none'
           }
         })
 
-        // Testimonial Stagger
         gsap.from('.testimonial-card', {
           opacity: 0,
-          y: 20,
-          duration: 0.5,
-          stagger: 0.08,
+          y: 15,
+          duration: 0.4,
+          stagger: 0.05,
           ease: 'power1.out',
           scrollTrigger: {
             trigger: '#testimonial-section',
-            start: 'top 95%',
+            start: 'top bottom',
             toggleActions: 'play none none none'
           }
         })
 
-        // Pricing Cards
         gsap.from('.pricing-card', {
           opacity: 0,
           y: 20,
-          duration: 0.5,
-          stagger: 0.08,
+          duration: 0.4,
+          stagger: 0.05,
           ease: 'power2.out',
           scrollTrigger: {
             trigger: '#pricing-section',
-            start: 'top 95%',
+            start: 'top bottom',
             toggleActions: 'play none none none'
           }
         })
       })
 
-      // Force recalculation of scroll trigger points 1s after initial mount
-      // to account for dynamic canvas render dimensions or loaded unsplash images
+      // Recalculate offsets on late loaded content or animations
       setTimeout(() => {
         ScrollTrigger.refresh()
       }, 1000)
@@ -245,6 +239,62 @@ export default function App() {
     return () => {
       ctx.revert()
       window.removeEventListener('load', handleLoad)
+    }
+  }, [])
+
+  // 2. IntersectionObserver Safety Net Fallback
+  // If ScrollTrigger fails to calculate, miscalculates height, or is stuck on mobile viewports,
+  // this observer acts as a bulletproof safety net. 1.5 seconds after an element enters the viewport,
+  // we check if it is still invisible. If yes, we force visibility using CSS transitions.
+  useEffect(() => {
+    const animatedElements = document.querySelectorAll(
+      '.trust-bar-item, .feature-card, .dashboard-reveal, .testimonial-card, .pricing-card'
+    )
+
+    const observerOptions = {
+      root: null, // use viewport
+      rootMargin: '0px 0px -5% 0px', // slight inset
+      threshold: 0.02 // triggers when 2% visible
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const el = entry.target
+
+          // If fallback has not been set yet, set a 1.5s timer
+          if (!el.getAttribute('data-fallback-registered')) {
+            el.setAttribute('data-fallback-registered', 'true')
+            
+            const timer = setTimeout(() => {
+              const computedStyle = window.getComputedStyle(el)
+              const currentOpacity = parseFloat(computedStyle.opacity)
+
+              // If still stuck at invisible, force reveal!
+              if (currentOpacity < 0.2) {
+                console.warn('[Nexora Safety Net] Forcing visibility fallback on element:', el)
+                el.classList.add('force-visible')
+              }
+            }, 1500)
+
+            // Cache timer ID directly on element to allow easy cleanup
+            el.setAttribute('data-timer-id', String(timer))
+          }
+        }
+      })
+    }, observerOptions)
+
+    animatedElements.forEach((el) => observer.observe(el))
+
+    // Cleanup
+    return () => {
+      animatedElements.forEach((el) => {
+        observer.unobserve(el)
+        const timerId = el.getAttribute('data-timer-id')
+        if (timerId) {
+          clearTimeout(Number(timerId))
+        }
+      })
     }
   }, [])
 
@@ -849,14 +899,14 @@ export default function App() {
             <div className="flex items-center gap-3">
               <a 
                 href="#" 
-                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-950 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-955 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="GitHub Link"
               >
                 <Github size={15} />
               </a>
               <a 
                 href="#" 
-                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-950 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
+                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-955 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
                 aria-label="Linkedin Link"
               >
                 <Linkedin size={15} />

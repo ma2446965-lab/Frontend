@@ -61,3 +61,12 @@ body {
 .dark .glowing-blob {
   opacity: 0.25;
 }
+
+/* Fallback safety net visibility class */
+.force-visible {
+  opacity: 1 !important;
+  transform: none !important;
+  scale: 1 !important;
+  visibility: visible !important;
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
