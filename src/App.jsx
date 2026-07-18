@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { 
   TrendingUp, 
   Sparkles, 
@@ -25,9 +24,6 @@ import {
 // Import custom components
 import ThreeHero from './components/ThreeHero'
 import DashboardPreview from './components/DashboardPreview'
-
-// Register GSAP ScrollTrigger
-gsap.registerPlugin(ScrollTrigger)
 
 // Custom SVGs for trademarked social icons
 const Github = (props) => (
@@ -65,10 +61,9 @@ export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const appContainerRef = useRef(null)
 
-  // 1. GSAP Entrance and Scroll Trigger Animations
+  // GSAP Entrance Animations for Hero on Load
   useEffect(() => {
     const ctx = gsap.context(() => {
-      // Hero entrance staggering (Always runs on page load)
       const heroTl = gsap.timeline()
       heroTl.from('.hero-reveal', {
         opacity: 0,
@@ -77,225 +72,9 @@ export default function App() {
         stagger: 0.12,
         ease: 'power3.out'
       })
-
-      // Use GSAP MatchMedia for pixel-perfect responsive layouts
-      const mm = gsap.matchMedia()
-
-      // Desktop Animations (768px and up)
-      mm.add("(min-width: 768px)", () => {
-        // Trust Bar Fade In
-        gsap.from('.trust-bar-item', {
-          opacity: 0,
-          y: 15,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#trust-bar',
-            start: 'top 85%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-
-        // Feature Grid Scroll Stagger
-        gsap.from('.feature-card', {
-          opacity: 0,
-          y: 40,
-          duration: 0.7,
-          stagger: 0.12,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '#features-section',
-            start: 'top 75%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-
-        // Dashboard Mockup Reveal
-        gsap.from('.dashboard-reveal', {
-          opacity: 0,
-          scale: 0.95,
-          y: 50,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '#dashboard-section',
-            start: 'top 70%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-
-        // Testimonial Stagger
-        gsap.from('.testimonial-card', {
-          opacity: 0,
-          y: 30,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#testimonial-section',
-            start: 'top 75%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-
-        // Pricing Tier Stagger
-        gsap.from('.pricing-card', {
-          opacity: 0,
-          y: 40,
-          duration: 0.8,
-          stagger: 0.15,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: '#pricing-section',
-            start: 'top 75%',
-            toggleActions: 'play none none reverse'
-          }
-        })
-      })
-
-      // Mobile & Tablet Animations (Under 768px)
-      // Highly robust 'top bottom' (triggers on absolute entrance) + play none none none (prevent stuck state on fast scrolls)
-      mm.add("(max-width: 767px)", () => {
-        gsap.from('.trust-bar-item', {
-          opacity: 0,
-          y: 10,
-          duration: 0.4,
-          stagger: 0.05,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: '#trust-bar',
-            start: 'top bottom', // Triggers instantly when top of section meets bottom of screen
-            toggleActions: 'play none none none'
-          }
-        })
-
-        gsap.from('.feature-card', {
-          opacity: 0,
-          y: 20,
-          duration: 0.4,
-          stagger: 0.05,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#features-section',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-          }
-        })
-
-        gsap.from('.dashboard-reveal', {
-          opacity: 0,
-          y: 20,
-          duration: 0.5,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#dashboard-section',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-          }
-        })
-
-        gsap.from('.testimonial-card', {
-          opacity: 0,
-          y: 15,
-          duration: 0.4,
-          stagger: 0.05,
-          ease: 'power1.out',
-          scrollTrigger: {
-            trigger: '#testimonial-section',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-          }
-        })
-
-        gsap.from('.pricing-card', {
-          opacity: 0,
-          y: 20,
-          duration: 0.4,
-          stagger: 0.05,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#pricing-section',
-            start: 'top bottom',
-            toggleActions: 'play none none none'
-          }
-        })
-      })
-
-      // Recalculate offsets on late loaded content or animations
-      setTimeout(() => {
-        ScrollTrigger.refresh()
-      }, 1000)
-
     }, appContainerRef)
 
-    // Trigger full ScrollTrigger refresh on window fully loaded to prevent offset bugs
-    const handleLoad = () => {
-      ScrollTrigger.refresh()
-    }
-    window.addEventListener('load', handleLoad)
-
-    // Cleanup GSAP context & listener
-    return () => {
-      ctx.revert()
-      window.removeEventListener('load', handleLoad)
-    }
-  }, [])
-
-  // 2. IntersectionObserver Safety Net Fallback
-  // If ScrollTrigger fails to calculate, miscalculates height, or is stuck on mobile viewports,
-  // this observer acts as a bulletproof safety net. 1.5 seconds after an element enters the viewport,
-  // we check if it is still invisible. If yes, we force visibility using CSS transitions.
-  useEffect(() => {
-    const animatedElements = document.querySelectorAll(
-      '.trust-bar-item, .feature-card, .dashboard-reveal, .testimonial-card, .pricing-card'
-    )
-
-    const observerOptions = {
-      root: null, // use viewport
-      rootMargin: '0px 0px -5% 0px', // slight inset
-      threshold: 0.02 // triggers when 2% visible
-    }
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          const el = entry.target
-
-          // If fallback has not been set yet, set a 1.5s timer
-          if (!el.getAttribute('data-fallback-registered')) {
-            el.setAttribute('data-fallback-registered', 'true')
-            
-            const timer = setTimeout(() => {
-              const computedStyle = window.getComputedStyle(el)
-              const currentOpacity = parseFloat(computedStyle.opacity)
-
-              // If still stuck at invisible, force reveal!
-              if (currentOpacity < 0.2) {
-                console.warn('[Nexora Safety Net] Forcing visibility fallback on element:', el)
-                el.classList.add('force-visible')
-              }
-            }, 1500)
-
-            // Cache timer ID directly on element to allow easy cleanup
-            el.setAttribute('data-timer-id', String(timer))
-          }
-        }
-      })
-    }, observerOptions)
-
-    animatedElements.forEach((el) => observer.observe(el))
-
-    // Cleanup
-    return () => {
-      animatedElements.forEach((el) => {
-        observer.unobserve(el)
-        const timerId = el.getAttribute('data-timer-id')
-        if (timerId) {
-          clearTimeout(Number(timerId))
-        }
-      })
-    }
+    return () => ctx.revert()
   }, [])
 
   // Fictional Trust Partners
@@ -615,7 +394,7 @@ export default function App() {
             {clientCompanies.map((client, idx) => (
               <div 
                 key={idx} 
-                className="trust-bar-item flex items-center gap-2 hover:scale-105 transition-transform duration-300 opacity-60 hover:opacity-100 cursor-default"
+                className="flex items-center gap-2 hover:scale-105 transition-transform duration-300 opacity-60 hover:opacity-100 cursor-default"
               >
                 <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-slate-600 to-slate-400 flex items-center justify-center text-slate-950 font-black text-xs">
                   α
@@ -651,7 +430,7 @@ export default function App() {
             {features.map((feature, idx) => (
               <div
                 key={idx}
-                className="feature-card p-6 rounded-2xl border border-slate-900/80 bg-slate-950/40 hover:bg-slate-950/80 hover:border-slate-800 transition-all duration-300 group flex flex-col hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/5 relative overflow-hidden"
+                className="p-6 rounded-2xl border border-slate-900/80 bg-slate-950/40 hover:bg-slate-950/80 hover:border-slate-800 transition-all duration-300 group flex flex-col hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/5 relative overflow-hidden"
               >
                 {/* Glow Overlay */}
                 <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
@@ -697,8 +476,8 @@ export default function App() {
             </p>
           </div>
 
-          {/* Interactive Mockup Component Wrapper with scroll reveal class */}
-          <div className="dashboard-reveal">
+          {/* Interactive Mockup Component Wrapper */}
+          <div>
             <DashboardPreview />
           </div>
 
@@ -727,7 +506,7 @@ export default function App() {
             {testimonials.map((test, index) => (
               <div
                 key={index}
-                className="testimonial-card p-6 sm:p-8 rounded-2xl border border-slate-900 bg-slate-950/50 backdrop-blur-xl relative flex flex-col justify-between group hover:border-slate-800 transition-all duration-300"
+                className="p-6 sm:p-8 rounded-2xl border border-slate-900 bg-slate-950/50 backdrop-blur-xl relative flex flex-col justify-between group hover:border-slate-800 transition-all duration-300"
               >
                 {/* Visual quote mark */}
                 <span className="absolute top-4 right-6 text-7xl font-serif text-slate-900 font-extrabold select-none pointer-events-none group-hover:text-slate-800/50 transition-colors">
@@ -779,7 +558,7 @@ export default function App() {
             {pricingPlans.map((plan, index) => (
               <div
                 key={index}
-                className={`pricing-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between relative transition-all duration-300 group hover:-translate-y-1 ${
+                className={`p-6 sm:p-8 rounded-2xl flex flex-col justify-between relative transition-all duration-300 group hover:-translate-y-1 ${
                   plan.popular
                     ? 'bg-slate-950/80 border-2 border-purple-500 shadow-xl shadow-purple-500/10'
                     : 'bg-slate-950/40 border border-slate-900/80 hover:border-slate-800'
