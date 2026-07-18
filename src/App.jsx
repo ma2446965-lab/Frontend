@@ -1,31 +1,35 @@
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
-import {
-  Menu,
-  X,
-  Code2,
-  Palette,
-  Smartphone,
-  Cpu,
-  ExternalLink,
-  Send,
-  Sparkles,
-  CheckCircle2,
-  Moon,
-  Sun,
-  Globe,
-  Mail,
-  Phone,
-  MapPin,
+import React, { useEffect, useRef, useState } from 'react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { 
+  TrendingUp, 
+  Sparkles, 
+  Cpu, 
+  Shield, 
+  Database, 
+  Layers, 
+  ArrowRight, 
+  CheckCircle2, 
+  User, 
+  Menu, 
+  X, 
+  BarChart3, 
+  Lock, 
+  Globe2, 
+  ChevronRight, 
   ArrowUpRight,
-  ChevronRight,
-  Database,
-  Layers,
-  Terminal,
-  MousePointerClick
+  GitBranch,
+  Mail
 } from 'lucide-react'
 
-// Custom Github component as Lucide 4 doesn't include trademark logos
+// Import custom components
+import ThreeHero from './components/ThreeHero'
+import DashboardPreview from './components/DashboardPreview'
+
+// Register GSAP ScrollTrigger
+gsap.registerPlugin(ScrollTrigger)
+
+// Custom SVGs for trademarked social icons
 const Github = (props) => (
   <svg
     viewBox="0 0 24 24"
@@ -41,910 +45,740 @@ const Github = (props) => (
   </svg>
 )
 
-const translations = {
-  ar: {
-    navHome: "الرئيسية",
-    navServices: "خدماتنا",
-    navProjects: "مشاريعنا",
-    navSkills: "مهاراتنا",
-    navContact: "تواصل معنا",
-    heroBadge: "🚀 نصنع المستقبل الرقمي",
-    heroTitle: "نبني تطبيقات ويب استثنائية وسريعة",
-    heroSubtitle: "مطور برمجيات متكامل (Full-Stack) متخصص في تحويل الأفكار الطموحة إلى تطبيقات رقمية فريدة، وحلول تفاعلية مؤتمتة بأعلى معايير الأداء والجمال البصري.",
-    btnContact: "تواصل معي",
-    btnProjects: "عرض المشاريع",
-    servicesTitle: "الخدمات التي أقدمها",
-    servicesSubtitle: "حلول رقمية متكاملة ومصممة خصيصاً لتلبية احتياجات عملك ونموه الرقمي",
-    service1Title: "تطوير تطبيقات الويب",
-    service1Desc: "تطوير تطبيقات ويب سريعة، آمنة ومتجاوبة بالكامل مع مختلف الشاشات باستخدام React و Node.js و Next.js.",
-    service2Title: "تصميم واجهات المستخدم (UI/UX)",
-    service2Desc: "تصميم واجهات مستخدم جذابة وسهلة الاستخدام تركز على توفير تجربة مستخدم استثنائية وسلسة للعملاء.",
-    service3Title: "تطوير تطبيقات الهواتف",
-    service3Desc: "بناء تطبيقات هواتف ذكية ممتازة وتعمل بكفاءة عالية على نظامي iOS و Android لتوفير وصول أسهل لعملائك.",
-    service4Title: "حلول الذكاء الاصطناعي والأتمتة",
-    service4Desc: "دمج الذكاء الاصطناعي وأتمتة العمليات اليومية لتوفير الوقت والجهد وتطوير الكفاءة التشغيلية.",
-    projectsTitle: "أحدث أعمالي",
-    projectsSubtitle: "استعرض مجموعة من المشاريع الواقعية التي قمت بتطويرها بمختلف التقنيات الحديثة",
-    all: "الكل",
-    web: "ويب",
-    mobile: "هواتف",
-    ai: "ذكاء اصطناعي",
-    project1Title: "منصة تجارة إلكترونية متكاملة",
-    project1Desc: "متجر إلكتروني فائق السرعة مع لوحة تحكم متطورة لإدارة المنتجات، الطلبات، وبوابات دفع مدمجة وآمنة.",
-    project2Title: "لوحة تحكم ذكية للبيانات",
-    project2Desc: "لوحة تحكم تعرض إحصائيات فورية، تحليلات تفصيلية ورسوم بيانية تفاعلية ممتازة لتتبع أداء المبيعات.",
-    project3Title: "تطبيق توصيل وتتبع الشحنات",
-    project3Desc: "تطبيق للهواتف الذكية يتيح للمستخدمين حجز وتتبع طلبات التوصيل في الوقت الفعلي مع خرائط تفاعلية.",
-    project4Title: "مساعد الذكاء الاصطناعي للأعمال",
-    project4Desc: "شات بوت ذكي مدمج مع نماذج لغوية متقدمة (GPT) لتقديم الدعم الفني الفوري وأتمتة الردود للعملاء.",
-    skillsTitle: "المهارات والخبرات التقنية",
-    skillsSubtitle: "الأدوات والتقنيات التي أتقنها لإنتاج برمجيات ومواقع ذات جودة عالمية",
-    contactTitle: "لنبدأ مشروعك القادم معاً",
-    contactSubtitle: "هل لديك فكرة مشروع طموحة؟ تواصل معي الآن لتحويلها إلى منتج رقمي مذهل وناجح.",
-    formName: "الاسم الكامل",
-    formEmail: "البريد الإلكتروني",
-    formSubject: "موضوع الرسالة",
-    formMessage: "تفاصيل رسالتك",
-    formSubmit: "إرسال الرسالة",
-    formSending: "جاري الإرسال...",
-    formSuccess: "تم إرسال رسالتك بنجاح! سأتصل بك قريباً.",
-    formError: "حدث خطأ ما، يرجى إعادة المحاولة.",
-    footerText: "جميع الحقوق محفوظة © 2026. تم التطوير بكل شغف.",
-    contactInfo: "معلومات الاتصال",
-    techStack: "التقنيات المستخدمة"
-  },
-  en: {
-    navHome: "Home",
-    navServices: "Services",
-    navProjects: "Projects",
-    navSkills: "Skills",
-    navContact: "Contact",
-    heroBadge: "🚀 Shaping the Digital Future",
-    heroTitle: "Building Exceptional Web & Digital Experiences",
-    heroSubtitle: "A passionate Full-Stack Developer specializing in transforming ambitious concepts into high-performance web applications, fluid designs, and intelligent automated solutions.",
-    btnContact: "Contact Me",
-    btnProjects: "View Projects",
-    servicesTitle: "What I Do",
-    servicesSubtitle: "Comprehensive digital services engineered to scale your business and engage your audience.",
-    service1Title: "Web Development",
-    service1Desc: "Developing blazing-fast, secure, and fully responsive websites and applications using React, Next.js, and Node.js.",
-    service2Title: "UI/UX Design",
-    service2Desc: "Designing gorgeous, user-centric interfaces focused on sleek navigation and engaging customer journeys.",
-    service3Title: "Mobile Development",
-    service3Desc: "Crafting beautiful, native-feel cross-platform mobile apps for iOS and Android built on cutting-edge frameworks.",
-    service4Title: "AI & Automation",
-    service4Desc: "Integrating cognitive AI engines and automating business processes to drive speed, accuracy, and growth.",
-    projectsTitle: "Featured Projects",
-    projectsSubtitle: "A curated display of real-world applications engineered to deliver business value and clean code.",
-    all: "All",
-    web: "Web",
-    mobile: "Mobile",
-    ai: "AI",
-    project1Title: "Full-Scale E-Commerce Hub",
-    project1Desc: "A complete storefront featuring modular product listings, comprehensive analytics dashboard, and secure checkout portals.",
-    project2Title: "SaaS Analytics Dashboard",
-    project2Desc: "Interactive real-time monitoring dashboard visualizing business KPIs, user engagement metrics, and financial reports.",
-    project3Title: "On-Demand Delivery Tracker",
-    project3Desc: "A high-fidelity mobile app with real-time mapping integrations and automated tracking alerts for instant shipping.",
-    project4Title: "AI Enterprise Assistant",
-    project4Desc: "An advanced conversational LLM assistant integrated into helpdesks to automate support tickets and answer queries.",
-    skillsTitle: "Technical Expertise",
-    skillsSubtitle: "The advanced technologies, systems, and languages I master to forge top-tier digital systems.",
-    contactTitle: "Let's Scale Your Idea Together",
-    contactSubtitle: "Have a project or a business challenge? Reach out, and let's turn it into a premium reality.",
-    formName: "Full Name",
-    formEmail: "Email Address",
-    formSubject: "Subject",
-    formMessage: "Message Details",
-    formSubmit: "Send Message",
-    formSending: "Sending Message...",
-    formSuccess: "Message sent successfully! I will get back to you shortly.",
-    formError: "An error occurred. Please try again.",
-    footerText: "All rights reserved © 2026. Crafted with passion & pixel-perfect precision.",
-    contactInfo: "Contact Details",
-    techStack: "Technologies Used"
-  }
-}
+const Linkedin = (props) => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+    <rect width="4" height="12" x="2" y="9" />
+    <circle cx="4" cy="4" r="2" />
+  </svg>
+)
 
-function App() {
-  const [lang, setLang] = useState('ar')
-  const [darkMode, setDarkMode] = useState(true)
+export default function App() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [projectFilter, setProjectFilter] = useState('all')
-  const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' })
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState(null) // 'success' | 'error'
+  const appContainerRef = useRef(null)
 
-  const t = translations[lang]
-
+  // GSAP Entrance and Scroll Trigger Animations
   useEffect(() => {
-    // Sync dark mode class
-    if (darkMode) {
-      document.documentElement.classList.add('dark')
-    } else {
-      document.documentElement.classList.remove('dark')
-    }
-  }, [darkMode])
+    const ctx = gsap.context(() => {
+      // 1. Hero entrance staggering
+      const heroTl = gsap.timeline()
+      heroTl.from('.hero-reveal', {
+        opacity: 0,
+        y: 35,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out'
+      })
 
-  const handleLangToggle = () => {
-    setLang(prev => (prev === 'ar' ? 'en' : 'ar'))
-  }
+      // 2. Trust Bar Fade In
+      gsap.from('.trust-bar-item', {
+        opacity: 0,
+        y: 15,
+        duration: 0.6,
+        stagger: 0.1,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '#trust-bar',
+          start: 'top 85%',
+          toggleActions: 'play none none reverse'
+        }
+      })
 
-  const handleContactSubmit = (e) => {
-    e.preventDefault()
-    if (!contactForm.name || !contactForm.email || !contactForm.message) {
-      setSubmitStatus('error')
-      return
-    }
+      // 3. Feature Grid Scroll Stagger
+      gsap.from('.feature-card', {
+        opacity: 0,
+        y: 40,
+        duration: 0.7,
+        stagger: 0.12,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#features-section',
+          start: 'top 75%',
+          toggleActions: 'play none none reverse'
+        }
+      })
 
-    setIsSubmitting(true)
-    setSubmitStatus(null)
+      // 4. Dashboard Mockup Reveal
+      gsap.from('.dashboard-reveal', {
+        opacity: 0,
+        scale: 0.95,
+        y: 50,
+        duration: 1,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#dashboard-section',
+          start: 'top 70%',
+          toggleActions: 'play none none reverse'
+        }
+      })
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false)
-      setSubmitStatus('success')
-      setContactForm({ name: '', email: '', subject: '', message: '' })
-    }, 1500)
-  }
+      // 5. Testimonial Stagger
+      gsap.from('.testimonial-card', {
+        opacity: 0,
+        y: 30,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: '#testimonial-section',
+          start: 'top 75%',
+          toggleActions: 'play none none reverse'
+        }
+      })
 
-  const services = [
-    { icon: Code2, title: t.service1Title, desc: t.service1Desc, tech: ['React', 'Next.js', 'Node.js', 'Tailwind'] },
-    { icon: Palette, title: t.service2Title, desc: t.service2Desc, tech: ['Figma', 'UI/UX Prototypes', 'Design Systems'] },
-    { icon: Smartphone, title: t.service3Title, desc: t.service3Desc, tech: ['React Native', 'Flutter', 'Mobile UI'] },
-    { icon: Cpu, title: t.service4Title, desc: t.service4Desc, tech: ['OpenAI API', 'LangChain', 'Python Automation'] },
+      // 6. Pricing Tier Stagger
+      gsap.from('.pricing-card', {
+        opacity: 0,
+        y: 40,
+        duration: 0.8,
+        stagger: 0.15,
+        ease: 'power3.out',
+        scrollTrigger: {
+          trigger: '#pricing-section',
+          start: 'top 75%',
+          toggleActions: 'play none none reverse'
+        }
+      })
+
+    }, appContainerRef)
+
+    // Cleanup GSAP context on unmount
+    return () => ctx.revert()
+  }, [])
+
+  // Fictional Trust Partners
+  const clientCompanies = [
+    { name: "Apex Capital", logo: "APEX CAP" },
+    { name: "Horizon Wealth", logo: "HORIZON" },
+    { name: "Equinox Alpha", logo: "EQX FUND" },
+    { name: "Sovereign Asset", logo: "SOV QUANT" },
+    { name: "Quantum Capital", logo: "QUANTUM" },
   ]
 
-  const projects = [
+  // Fictional Features list
+  const features = [
     {
-      id: 1,
-      category: 'web',
-      title: t.project1Title,
-      desc: t.project1Desc,
-      tech: ['React', 'Node.js', 'Tailwind CSS', 'Stripe'],
-      image: 'https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&w=800&q=80',
-      demo: '#',
-      github: '#'
+      icon: Sparkles,
+      title: "AI-Powered Strategy Signals",
+      desc: "Receive algorithmic insights that constantly parse sentiment, macro indexes, and historical patterns to output probability vectors.",
+      glow: "group-hover:border-purple-500/40"
     },
     {
-      id: 2,
-      category: 'web',
-      title: t.project2Title,
-      desc: t.project2Desc,
-      tech: ['Vite', 'React', 'Recharts', 'Tailwind CSS'],
-      image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=800&q=80',
-      demo: '#',
-      github: '#'
+      icon: TrendingUp,
+      title: "Predictive Asset Modeling",
+      desc: "Simulate portfolio stress and forecast asset trajectory using deep neural networks backtested over 25+ years of market data.",
+      glow: "group-hover:border-blue-500/40"
     },
     {
-      id: 3,
-      category: 'mobile',
-      title: t.project3Title,
-      desc: t.project3Desc,
-      tech: ['React Native', 'Expo', 'Google Maps API'],
-      image: 'https://images.unsplash.com/photo-1522542550221-31fd19575a2d?auto=format&fit=crop&w=800&q=80',
-      demo: '#',
-      github: '#'
-    },
-    {
-      id: 4,
-      category: 'ai',
-      title: t.project4Title,
-      desc: t.project4Desc,
-      tech: ['Python', 'OpenAI', 'Next.js', 'PostgreSQL'],
-      image: 'https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=800&q=80',
-      demo: '#',
-      github: '#'
-    }
-  ]
-
-  const skillCategories = [
-    {
-      title: lang === 'ar' ? "الواجهات الأمامية" : "Frontend Development",
-      icon: Code2,
-      skills: [
-        { name: "React / React 19", level: 95 },
-        { name: "JavaScript / TypeScript", level: 90 },
-        { name: "Tailwind CSS v4", level: 98 },
-        { name: "Next.js", level: 85 },
-      ]
-    },
-    {
-      title: lang === 'ar' ? "الواجهات الخلفية" : "Backend & Databases",
       icon: Database,
-      skills: [
-        { name: "Node.js / Express", level: 88 },
-        { name: "Python / FastAPI", level: 80 },
-        { name: "PostgreSQL / MongoDB", level: 85 },
-        { name: "RESTful & GraphQL APIs", level: 90 },
-      ]
+      title: "Sub-Second Ingestion Engine",
+      desc: "Our high-throughput data architecture ingests millions of global trade, order book, and social signals in real-time.",
+      glow: "group-hover:border-cyan-500/40"
     },
     {
-      title: lang === 'ar' ? "الأدوات والذكاء الاصطناعي" : "AI & Cloud Tools",
-      icon: Terminal,
-      skills: [
-        { name: "Git / GitHub / CI-CD", level: 92 },
-        { name: "Docker & AWS Basics", level: 75 },
-        { name: "OpenAI API Integration", level: 88 },
-        { name: "UI Design (Figma)", level: 82 },
-      ]
+      icon: Shield,
+      title: "Quantum-Safe Compliance",
+      desc: "Encrypted, audit-ready reports keeping your fund in absolute alignment with SEC, ESMA, and global regulatory standards.",
+      glow: "group-hover:border-indigo-500/40"
+    },
+    {
+      icon: Layers,
+      title: "Dynamic Asset Allocation",
+      desc: "Rebalance assets based on live volatility markers, maximizing Sharpe ratios while mitigating systemic tail risk automatically.",
+      glow: "group-hover:border-fuchsia-500/40"
+    },
+    {
+      icon: Globe2,
+      title: "Macro Risk Isolation",
+      desc: "Identify geographical and political risk factors early, isolating your core portfolio from local inflation shocks.",
+      glow: "group-hover:border-emerald-500/40"
     }
   ]
 
-  const filteredProjects = projectFilter === 'all'
-    ? projects
-    : projects.filter(p => p.category === projectFilter)
+  // Fictional Testimonials
+  const testimonials = [
+    {
+      quote: "Nexora's predictive vectors completely modernized our risk team. We managed to dodge the Q1 sector drawdowns entirely because the neural signal warned us 72 hours prior.",
+      author: "Marcus Vance",
+      role: "Managing Director, Vance & Capital",
+      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80"
+    },
+    {
+      quote: "The interface is absolute art, but the real power is sub-second data synthesis. Nexora integrates standard quant layers with cognitive AI that reads between regular numbers.",
+      author: "Elena Rostova",
+      role: "Chief Investment Officer, Zenith Capital",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=120&h=120&q=80"
+    },
+    {
+      quote: "As an early-stage investor, I see dozens of pitch decks. Nexora's live predictive interface is the first dashboard that gave me confidence in real-time automated hedging.",
+      author: "David Chen",
+      role: "General Partner, BlueCore Ventures",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=120&h=120&q=80"
+    }
+  ]
+
+  // Fictional Pricing
+  const pricingPlans = [
+    {
+      name: "Core Alpha",
+      price: "$2,400",
+      period: "per seat / year",
+      desc: "Essential predictive modeling and real-time data streams optimized for independent asset managers.",
+      features: [
+        "Real-time asset tracking streams",
+        "Basic AI Strategy Signals (10 daily)",
+        "Standard backtesting suite (10yr)",
+        "Daily risk advisory email digest",
+        "Standard API Integration limits"
+      ],
+      popular: false,
+      btnClass: "bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-white"
+    },
+    {
+      name: "Quantum Vector",
+      price: "$6,500",
+      period: "per seat / year",
+      desc: "Our flagship cognitive model offering deep automated rebalancing, real-time stress testing, and premium APIs.",
+      features: [
+        "Sub-second tick ingestion engine",
+        "Unlimited AI Strategy Signals",
+        "Advanced neural forecast modeling",
+        "Dynamic automated rebalancing",
+        "Custom compliance & audit reporting",
+        "Priority 24/7 dedicated support"
+      ],
+      popular: true,
+      btnClass: "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg shadow-blue-500/25 border-none"
+    },
+    {
+      name: "Enterprise Core",
+      price: "Custom",
+      period: "tailored pricing structure",
+      desc: "Full dedicated cluster model with custom data ingestion pipelines and direct quant integration options.",
+      features: [
+        "SLA guaranteed dedicated instance",
+        "Custom local LLM training options",
+        "Colocated high-frequency feed latency",
+        "Unlimited team Seats & sub-wallets",
+        "Quarterly quantitative analysis reviews",
+        "On-premise deployment available"
+      ],
+      popular: false,
+      btnClass: "bg-slate-900 border border-slate-800 hover:border-slate-700 hover:bg-slate-800 text-white"
+    }
+  ]
 
   return (
-    <div className={`min-h-screen font-sans ${lang === 'ar' ? 'rtl' : 'ltr'} bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 selection:bg-purple-500 selection:text-white overflow-x-hidden`}>
+    <div 
+      ref={appContainerRef} 
+      className="min-h-screen bg-slate-950 text-slate-100 font-sans antialiased overflow-x-hidden relative"
+    >
       
-      {/* Background glowing decorations */}
-      <div className="glowing-blob w-[400px] h-[400px] bg-purple-600 top-20 left-[-100px]" />
-      <div className="glowing-blob w-[500px] h-[500px] bg-indigo-600 top-[800px] right-[-150px]" />
-      <div className="glowing-blob w-[300px] h-[300px] bg-fuchsia-600 bottom-40 left-10" />
+      {/* Absolute Decorative Glow Mesh */}
+      <div className="absolute top-0 left-1/4 w-[600px] h-[600px] bg-blue-500/5 rounded-full filter blur-[150px] pointer-events-none" />
+      <div className="absolute top-1/2 right-1/4 w-[700px] h-[700px] bg-purple-500/5 rounded-full filter blur-[180px] pointer-events-none" />
 
-      {/* Glassmorphic Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 glass shadow-sm transition-all duration-300">
+      {/* Glassmorphic Navigation Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-slate-950/60 backdrop-blur-xl border-b border-slate-900/80">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
+            
             {/* Logo */}
-            <motion.div 
-              initial={{ opacity: 0, x: lang === 'ar' ? 20 : -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="flex items-center gap-2"
-            >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md shadow-purple-500/20">
-                <Sparkles size={20} className="animate-pulse" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold shadow-md shadow-blue-500/10">
+                <Sparkles size={18} className="animate-pulse" />
               </div>
-              <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-500 dark:from-purple-400 dark:to-indigo-300">
-                {lang === 'ar' ? 'نبذة رقمية' : 'DigitalCraft'}
+              <span className="text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-slate-100 to-slate-300">
+                NEXORA
               </span>
-            </motion.div>
-
-            {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-8 font-medium">
-              {[
-                { name: t.navHome, href: "#home" },
-                { name: t.navServices, href: "#services" },
-                { name: t.navProjects, href: "#projects" },
-                { name: t.navSkills, href: "#skills" },
-                { name: t.navContact, href: "#contact" },
-              ].map((link, i) => (
-                <motion.a
-                  key={link.href}
-                  href={link.href}
-                  className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors text-sm relative group py-2"
-                  whileHover={{ scale: 1.02 }}
-                >
-                  {link.name}
-                  <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-gradient-to-r from-purple-500 to-indigo-500 transition-all duration-300 group-hover:w-full"></span>
-                </motion.a>
-              ))}
+              <span className="text-[9px] font-black text-blue-400 tracking-wider bg-blue-500/10 border border-blue-500/20 px-2 py-0.5 rounded">
+                AI FUND
+              </span>
             </div>
 
-            {/* Utility buttons (Lang / Theme / Menu) */}
-            <div className="flex items-center gap-3">
-              {/* Language Switcher */}
-              <button
-                onClick={handleLangToggle}
-                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border border-slate-200/50 dark:border-slate-800/50 flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-                aria-label="Toggle language"
-              >
-                <Globe size={16} />
-                <span>{lang === 'ar' ? 'English' : 'عربي'}</span>
-              </button>
+            {/* Desktop Nav */}
+            <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-400">
+              <a href="#features-section" className="hover:text-white transition-colors py-2">Features</a>
+              <a href="#dashboard-section" className="hover:text-white transition-colors py-2">Platform</a>
+              <a href="#testimonial-section" className="hover:text-white transition-colors py-2">Trust</a>
+              <a href="#pricing-section" className="hover:text-white transition-colors py-2">Pricing</a>
+            </nav>
 
-              {/* Theme Switcher */}
-              <button
-                onClick={() => setDarkMode(!darkMode)}
-                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 transition-colors border border-slate-200/50 dark:border-slate-800/50 cursor-pointer"
-                aria-label="Toggle dark mode"
+            {/* Right Buttons */}
+            <div className="hidden md:flex items-center gap-4">
+              <a 
+                href="#pricing-section" 
+                className="text-sm font-semibold text-slate-300 hover:text-white transition-colors"
               >
-                {darkMode ? <Sun size={18} className="text-amber-400" /> : <Moon size={18} className="text-slate-700" />}
-              </button>
-
-              {/* Contact Button Desktop */}
-              <a
-                href="#contact"
-                className="hidden lg:flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-sm py-2.5 px-5 rounded-xl transition-all shadow-md shadow-purple-500/20 hover:shadow-lg hover:shadow-purple-500/30 active:scale-95"
-              >
-                <span>{t.btnContact}</span>
-                <ArrowUpRight size={16} className={lang === 'ar' ? 'rotate-270' : ''} />
+                Sign In
               </a>
-
-              {/* Mobile Burger Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="p-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-900 md:hidden border border-slate-200/50 dark:border-slate-800/50"
-                aria-label="Toggle Mobile Menu"
+              <a 
+                href="#pricing-section" 
+                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold text-sm py-2.5 px-5 rounded-xl transition-all shadow-md shadow-blue-500/15 hover:shadow-blue-500/25 active:scale-95 flex items-center gap-1.5"
               >
-                {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-              </button>
+                <span>Request Investor Pitch</span>
+                <ChevronRight size={15} />
+              </a>
             </div>
+
+            {/* Mobile Menu Button */}
+            <button 
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2.5 rounded-xl border border-slate-900 bg-slate-950/40 text-slate-400 hover:text-white"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+
           </div>
         </div>
 
         {/* Mobile Navigation Drawer */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-t border-slate-200/50 dark:border-slate-800/50 bg-white/95 dark:bg-slate-950/95 backdrop-blur-lg overflow-hidden"
-            >
-              <div className="px-4 py-5 space-y-3">
-                {[
-                  { name: t.navHome, href: "#home" },
-                  { name: t.navServices, href: "#services" },
-                  { name: t.navProjects, href: "#projects" },
-                  { name: t.navSkills, href: "#skills" },
-                  { name: t.navContact, href: "#contact" },
-                ].map((link) => (
-                  <a
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="block px-4 py-2.5 rounded-lg text-base font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-900 hover:text-purple-600 dark:hover:text-purple-400 transition-all"
-                  >
-                    {link.name}
-                  </a>
-                ))}
-                <div className="pt-4 border-t border-slate-200 dark:border-slate-800 flex justify-center">
-                  <a
-                    href="#contact"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="w-full text-center flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-medium py-3 rounded-xl shadow-md"
-                  >
-                    <span>{t.btnContact}</span>
-                    <ArrowUpRight size={16} />
-                  </a>
-                </div>
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-slate-900 bg-slate-950/95 backdrop-blur-xl">
+            <div className="px-4 py-5 space-y-3.5">
+              <a 
+                href="#features-section" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-slate-300 hover:text-white"
+              >
+                Features
+              </a>
+              <a 
+                href="#dashboard-section" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-slate-300 hover:text-white"
+              >
+                Platform Preview
+              </a>
+              <a 
+                href="#testimonial-section" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-slate-300 hover:text-white"
+              >
+                Investor Reviews
+              </a>
+              <a 
+                href="#pricing-section" 
+                onClick={() => setMobileMenuOpen(false)}
+                className="block text-base font-semibold text-slate-300 hover:text-white"
+              >
+                Pricing Plans
+              </a>
+              <div className="pt-4 border-t border-slate-900">
+                <a 
+                  href="#pricing-section" 
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="w-full text-center flex items-center justify-center gap-1.5 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold py-3 rounded-xl shadow-lg"
+                >
+                  <span>Request Pitch Access</span>
+                  <ChevronRight size={15} />
+                </a>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </nav>
+            </div>
+          </div>
+        )}
+      </header>
 
-      {/* Hero Section */}
-      <section id="home" className="relative pt-32 pb-20 md:pt-44 md:pb-32 overflow-hidden flex items-center">
+      {/* Cinematic Hero Section */}
+      <section className="relative pt-32 pb-24 md:pt-48 md:pb-40 flex items-center min-h-[90vh] overflow-hidden">
+        
+        {/* Three.js 3D Background */}
+        <ThreeHero />
+
+        {/* Shadow Overlay Gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-slate-950/20 to-slate-950 pointer-events-none z-0" />
+
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
-            {/* Left Content Column */}
-            <div className="lg:col-span-7 flex flex-col space-y-6 text-center lg:text-start items-center lg:items-start">
-              <motion.div
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-purple-500/10 dark:bg-purple-400/10 text-purple-600 dark:text-purple-300 text-xs sm:text-sm font-semibold border border-purple-500/20"
-              >
-                <Sparkles size={14} className="animate-spin" />
-                <span>{t.heroBadge}</span>
-              </motion.div>
+            {/* Left Column Content */}
+            <div className="lg:col-span-8 flex flex-col items-center lg:items-start text-center lg:text-left space-y-6 sm:space-y-7">
+              
+              {/* Badge */}
+              <div className="hero-reveal inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs sm:text-sm font-bold shadow-md shadow-blue-500/5">
+                <Sparkles size={14} className="text-purple-400 animate-pulse" />
+                <span>Next-Gen Financial Intelligence Engine</span>
+              </div>
 
-              <motion.h1
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl font-black leading-tight sm:leading-none tracking-tight text-slate-950 dark:text-white"
-              >
-                {lang === 'ar' ? (
-                  <>
-                    نبني تطبيقات ويب <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-500 to-fuchsia-500 dark:from-purple-400 dark:via-indigo-300 dark:to-fuchsia-400">استثنائية وسريعة</span>
-                  </>
-                ) : (
-                  <>
-                    Building Exceptional <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-indigo-500 to-fuchsia-500 dark:from-purple-400 dark:via-indigo-300 dark:to-fuchsia-400">Web & Digital</span> Experiences
-                  </>
-                )}
-              </motion.h1>
+              {/* Headline */}
+              <h1 className="hero-reveal text-4xl sm:text-5xl lg:text-7xl font-black tracking-tight leading-none text-white max-w-4xl">
+                AI-Powered <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-indigo-400 to-purple-400">
+                  Financial Analytics
+                </span> <br />
+                for Enterprise Alpha.
+              </h1>
 
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                className="text-base sm:text-lg text-slate-600 dark:text-slate-300 max-w-2xl leading-relaxed font-normal"
-              >
-                {t.heroSubtitle}
-              </motion.p>
+              {/* Subheadline */}
+              <p className="hero-reveal text-slate-300 text-base sm:text-lg lg:text-xl max-w-2xl leading-relaxed">
+                Nexora synthesizes global market datasets, sentiment streams, and macro metrics into real-time strategy models, providing investor-pitch-ready predictive accuracy.
+              </p>
 
-              {/* Action Buttons */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-4"
-              >
-                <a
-                  href="#contact"
-                  className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold py-3.5 px-8 rounded-xl transition-all shadow-lg shadow-purple-500/20 hover:shadow-purple-500/30 hover:-translate-y-0.5"
+              {/* CTA and stats group */}
+              <div className="hero-reveal flex flex-col sm:flex-row items-center gap-4.5 w-full sm:w-auto pt-2">
+                <a 
+                  href="#pricing-section"
+                  className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:-translate-y-0.5 active:scale-95 group/btn cursor-pointer"
                 >
-                  {t.btnContact}
-                  <Send size={16} className={lang === 'ar' ? 'rotate-180' : ''} />
+                  <span>Request Investor Deck</span>
+                  <ArrowRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
                 </a>
-                <a
-                  href="#projects"
-                  className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-800 dark:text-slate-100 border border-slate-200 dark:border-slate-800 font-semibold py-3.5 px-8 rounded-xl transition-all hover:-translate-y-0.5"
+                <a 
+                  href="#dashboard-section"
+                  className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 font-bold py-4 px-8 rounded-xl transition-all hover:-translate-y-0.5 active:scale-95"
                 >
-                  {t.btnProjects}
-                  <MousePointerClick size={16} />
+                  <span>Interactive Preview</span>
+                  <BarChart3 size={16} className="text-purple-400" />
                 </a>
-              </motion.div>
-            </div>
+              </div>
 
-            {/* Right Interactive Card Column */}
-            <div className="lg:col-span-5 relative flex justify-center items-center">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8 }}
-                className="relative w-full max-w-[400px] h-[400px] flex items-center justify-center"
-              >
-                {/* Visual Glassmorphic Tech Stack Circle */}
-                <div className="absolute w-[300px] h-[300px] rounded-full border border-dashed border-purple-500/30 dark:border-purple-400/20 animate-spin" style={{ animationDuration: '40s' }} />
-                <div className="absolute w-[220px] h-[220px] rounded-full border border-dashed border-indigo-500/30 dark:border-indigo-400/20 animate-spin" style={{ animationDuration: '25s', animationDirection: 'reverse' }} />
-
-                {/* Core logo container */}
-                <div className="absolute w-24 h-24 rounded-3xl bg-slate-900/10 dark:bg-white/5 border border-white/20 flex items-center justify-center shadow-2xl backdrop-blur-xl group hover:scale-105 transition-transform duration-300">
-                  <Cpu size={48} className="text-purple-500 dark:text-purple-400 animate-pulse" />
+              {/* Small Key Stats row */}
+              <div className="hero-reveal grid grid-cols-3 gap-6 sm:gap-12 pt-8 border-t border-slate-900/80 w-full sm:w-auto">
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight">$4.2B+</span>
+                  <span className="text-[11px] text-slate-500 font-bold tracking-widest uppercase mt-1">Assets Scanned</span>
                 </div>
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight">0.12s</span>
+                  <span className="text-[11px] text-slate-500 font-bold tracking-widest uppercase mt-1">Tick Latency</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-2xl sm:text-3xl font-black font-mono text-white tracking-tight">22.4%</span>
+                  <span className="text-[11px] text-slate-500 font-bold tracking-widest uppercase mt-1">Target Yield</span>
+                </div>
+              </div>
 
-                {/* Orbiting Tech Cards */}
-                <motion.div
-                  animate={{ y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                  className="absolute top-10 right-2 glass-card py-2.5 px-4 rounded-2xl flex items-center gap-2.5 shadow-lg border border-white/20"
-                >
-                  <Code2 className="text-purple-500" size={18} />
-                  <span className="text-xs font-bold font-mono">React 19</span>
-                </motion.div>
-
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut", delay: 0.5 }}
-                  className="absolute bottom-12 left-2 glass-card py-2.5 px-4 rounded-2xl flex items-center gap-2.5 shadow-lg border border-white/20"
-                >
-                  <Sparkles className="text-indigo-500 animate-spin" size={18} style={{ animationDuration: '8s' }} />
-                  <span className="text-xs font-bold font-mono">Tailwind v4</span>
-                </motion.div>
-
-                <motion.div
-                  animate={{ x: [0, -8, 0] }}
-                  transition={{ repeat: Infinity, duration: 5, ease: "easeInOut", delay: 0.2 }}
-                  className="absolute top-48 left-0 glass-card py-2.5 px-4 rounded-2xl flex items-center gap-2.5 shadow-lg border border-white/20"
-                >
-                  <Terminal className="text-emerald-500" size={18} />
-                  <span className="text-xs font-bold font-mono">Vite Fast</span>
-                </motion.div>
-
-                <motion.div
-                  animate={{ x: [0, 8, 0] }}
-                  transition={{ repeat: Infinity, duration: 4.8, ease: "easeInOut", delay: 0.7 }}
-                  className="absolute bottom-24 right-0 glass-card py-2.5 px-4 rounded-2xl flex items-center gap-2.5 shadow-lg border border-white/20"
-                >
-                  <Database className="text-amber-500" size={18} />
-                  <span className="text-xs font-bold font-mono">Node.js</span>
-                </motion.div>
-              </motion.div>
             </div>
-
           </div>
         </div>
       </section>
 
-      {/* Services Section */}
-      <section id="services" className="py-20 bg-white dark:bg-slate-900/50 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white mb-4">
-              {t.servicesTitle}
-            </h2>
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400">
-              {t.servicesSubtitle}
-            </p>
-          </div>
-
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {services.map((service, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 hover:shadow-xl hover:shadow-purple-500/5 transition-all group duration-300"
+      {/* Trust Bar (fictional client companies) */}
+      <section id="trust-bar" className="py-12 border-y border-slate-900/60 bg-slate-950/40 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-center text-xs font-bold text-slate-500 uppercase tracking-widest mb-6">
+            Trusted by Elite Quantitative Funds & Asset Managers
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-16">
+            {clientCompanies.map((client, idx) => (
+              <div 
+                key={idx} 
+                className="trust-bar-item flex items-center gap-2 hover:scale-105 transition-transform duration-300 opacity-60 hover:opacity-100 cursor-default"
               >
-                <div className="w-12 h-12 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300 mb-5 group-hover:scale-110 group-hover:bg-purple-600 group-hover:text-white transition-all duration-300 shadow-md">
-                  <service.icon size={24} />
+                <div className="w-5 h-5 rounded-md bg-gradient-to-tr from-slate-600 to-slate-400 flex items-center justify-center text-slate-950 font-black text-xs">
+                  α
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-slate-900 dark:text-slate-100 group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                  {service.title}
-                </h3>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed mb-5">
-                  {service.desc}
-                </p>
-                
-                {/* Tech chips */}
-                <div className="flex flex-wrap gap-1.5 mt-auto pt-2 border-t border-slate-200/50 dark:border-slate-800/50">
-                  {service.tech.map((tech, i) => (
-                    <span key={i} className="text-[10px] font-semibold bg-slate-100 dark:bg-slate-800/80 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded">
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </motion.div>
+                <span className="text-sm font-black font-mono tracking-widest text-slate-300">
+                  {client.logo}
+                </span>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Projects Showcase Section */}
-      <section id="projects" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      {/* Feature Grid Section */}
+      <section id="features-section" className="py-24 sm:py-32 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white mb-4">
-              {t.projectsTitle}
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <span className="text-xs font-black text-blue-500 uppercase tracking-widest block">
+              Unrivaled Capabilities
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-none">
+              Supercharged with Nexora AI Intelligence.
             </h2>
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400">
-              {t.projectsSubtitle}
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
+              Explore how Nexora delivers an edge, combining high-velocity parsing with cognitive strategy models.
             </p>
           </div>
 
-          {/* Project Filters */}
-          <div className="flex justify-center flex-wrap gap-2.5 mb-12">
-            {[
-              { id: 'all', name: t.all },
-              { id: 'web', name: t.web },
-              { id: 'mobile', name: t.mobile },
-              { id: 'ai', name: t.ai },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setProjectFilter(tab.id)}
-                className={`py-2 px-6 rounded-full text-sm font-semibold transition-all duration-300 cursor-pointer ${
-                  projectFilter === tab.id
-                    ? 'bg-purple-600 text-white shadow-md shadow-purple-500/20'
-                    : 'bg-white dark:bg-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300'
+          {/* Cards Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {features.map((feature, idx) => (
+              <div
+                key={idx}
+                className="feature-card p-6 rounded-2xl border border-slate-900/80 bg-slate-950/40 hover:bg-slate-950/80 hover:border-slate-800 transition-all duration-300 group flex flex-col hover:-translate-y-1 hover:shadow-lg hover:shadow-purple-500/5 relative overflow-hidden"
+              >
+                {/* Glow Overlay */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/5 rounded-full filter blur-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+
+                {/* Icon Wrapper */}
+                <div className="w-11 h-11 rounded-xl bg-slate-900 border border-slate-800/80 flex items-center justify-center text-blue-400 group-hover:text-purple-400 group-hover:scale-105 transition-all duration-300 shadow-md shadow-blue-500/5 mb-5">
+                  <feature.icon size={20} />
+                </div>
+
+                <h3 className="text-lg sm:text-xl font-bold mb-2.5 text-white group-hover:text-blue-400 transition-colors">
+                  {feature.title}
+                </h3>
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  {feature.desc}
+                </p>
+
+                {/* Hover indicator link */}
+                <div className="flex items-center gap-1.5 mt-6 text-xs font-bold text-slate-500 group-hover:text-white transition-all pt-4 border-t border-slate-900/60 w-full">
+                  <span>Learn more</span>
+                  <ChevronRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* Flagship Dashboard Preview Section */}
+      <section id="dashboard-section" className="py-24 sm:py-32 bg-slate-950/40 relative border-y border-slate-900/40 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <span className="text-xs font-black text-purple-500 uppercase tracking-widest block">
+              Institutional Terminal
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-none">
+              Real-Time Portfolio Orchestration.
+            </h2>
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
+              Synthesize risk factors, backtest model parameters, and orchestrate trade decisions from an investor-ready visual terminal.
+            </p>
+          </div>
+
+          {/* Interactive Mockup Component Wrapper with scroll reveal class */}
+          <div className="dashboard-reveal">
+            <DashboardPreview />
+          </div>
+
+        </div>
+      </section>
+
+      {/* Testimonial Section */}
+      <section id="testimonial-section" className="py-24 sm:py-32 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <span className="text-xs font-black text-cyan-500 uppercase tracking-widest block">
+              Quant & Partner Reviews
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-none">
+              What Pioneers Say About Nexora.
+            </h2>
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
+              Tested and approved by fund managers and capital partners seeking mathematical edges.
+            </p>
+          </div>
+
+          {/* Testimonial cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((test, index) => (
+              <div
+                key={index}
+                className="testimonial-card p-6 sm:p-8 rounded-2xl border border-slate-900 bg-slate-950/50 backdrop-blur-xl relative flex flex-col justify-between group hover:border-slate-800 transition-all duration-300"
+              >
+                {/* Visual quote mark */}
+                <span className="absolute top-4 right-6 text-7xl font-serif text-slate-900 font-extrabold select-none pointer-events-none group-hover:text-slate-800/50 transition-colors">
+                  “
+                </span>
+
+                <p className="text-sm text-slate-300 leading-relaxed relative z-10 mb-6 italic">
+                  "{test.quote}"
+                </p>
+
+                {/* Author Info */}
+                <div className="flex items-center gap-3.5 pt-4 border-t border-slate-900">
+                  <img 
+                    src={test.image} 
+                    alt={test.author}
+                    className="w-10 h-10 rounded-full object-cover border border-slate-800"
+                  />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-white tracking-wide">{test.author}</span>
+                    <span className="text-[11px] text-slate-500 font-semibold">{test.role}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
+
+      {/* Pricing Tiers Section */}
+      <section id="pricing-section" className="py-24 sm:py-32 bg-slate-950/40 relative border-t border-slate-900/60 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          
+          {/* Section Header */}
+          <div className="text-center max-w-3xl mx-auto mb-20 space-y-4">
+            <span className="text-xs font-black text-blue-500 uppercase tracking-widest block">
+              Investment plans
+            </span>
+            <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-none">
+              Transparent Seat Subscriptions.
+            </h2>
+            <p className="text-base sm:text-lg text-slate-400 leading-relaxed">
+              Equip your capital management team with the quantitative edge required for sustained alpha production.
+            </p>
+          </div>
+
+          {/* Pricing Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch">
+            {pricingPlans.map((plan, index) => (
+              <div
+                key={index}
+                className={`pricing-card p-6 sm:p-8 rounded-2xl flex flex-col justify-between relative transition-all duration-300 group hover:-translate-y-1 ${
+                  plan.popular
+                    ? 'bg-slate-950/80 border-2 border-purple-500 shadow-xl shadow-purple-500/10'
+                    : 'bg-slate-950/40 border border-slate-900/80 hover:border-slate-800'
                 }`}
               >
-                {tab.name}
-              </button>
-            ))}
-          </div>
+                {/* Popular Badge */}
+                {plan.popular && (
+                  <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-[10px] font-black uppercase px-3.5 py-1 rounded-full tracking-widest shadow">
+                    MOST POPULAR MODEL
+                  </span>
+                )}
 
-          {/* Projects Cards Grid */}
-          <motion.div 
-            layout 
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8"
-          >
-            <AnimatePresence mode="popLayout">
-              {filteredProjects.map((project) => (
-                <motion.div
-                  key={project.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.4 }}
-                  className="group bg-white dark:bg-slate-900 rounded-2xl overflow-hidden border border-slate-200/60 dark:border-slate-800 shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
-                >
-                  {/* Image Container with Hover Zoom & Tech Tags Overlay */}
-                  <div className="relative overflow-hidden aspect-video bg-slate-100 dark:bg-slate-800">
-                    <img 
-                      src={project.image} 
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/20 to-transparent opacity-80" />
-                    
-                    {/* Floating Category Badge */}
-                    <span className="absolute top-4 right-4 bg-purple-600 text-white text-[11px] font-bold px-3 py-1.5 rounded-full uppercase tracking-wider shadow">
-                      {t[project.category]}
+                {/* Plan Header */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-400 uppercase tracking-widest mb-3">
+                    {plan.name}
+                  </h3>
+                  <div className="flex items-baseline gap-1.5 mb-4">
+                    <span className="text-4xl sm:text-5xl font-black font-mono text-white tracking-tight">
+                      {plan.price}
+                    </span>
+                    <span className="text-slate-500 text-xs font-bold uppercase tracking-wider">
+                      {plan.period}
                     </span>
                   </div>
+                  <p className="text-sm text-slate-400 leading-relaxed mb-6">
+                    {plan.desc}
+                  </p>
 
-                  {/* Details */}
-                  <div className="p-6 flex flex-col flex-grow">
-                    <h3 className="text-xl font-bold mb-2.5 text-slate-950 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 mb-5 leading-relaxed flex-grow">
-                      {project.desc}
-                    </p>
-
-                    {/* Meta & Links */}
-                    <div className="flex flex-col gap-4 pt-4 border-t border-slate-100 dark:border-slate-800/80">
-                      {/* Technical Stack used */}
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.tech.map((tag, i) => (
-                          <span key={i} className="text-[11px] font-semibold bg-purple-500/10 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">
-                            {tag}
-                          </span>
-                        ))}
+                  {/* Feature Checklist */}
+                  <div className="space-y-3.5 pt-6 border-t border-slate-900 w-full mb-8">
+                    {plan.features.map((feat, fI) => (
+                      <div key={fI} className="flex items-start gap-2.5 text-xs sm:text-sm">
+                        <CheckCircle2 size={16} className="text-blue-400 mt-0.5 flex-shrink-0" />
+                        <span className="text-slate-300 font-medium">{feat}</span>
                       </div>
-
-                      {/* Action Links */}
-                      <div className="flex items-center gap-4 text-sm font-semibold pt-1">
-                        <a 
-                          href={project.demo} 
-                          className="flex items-center gap-1.5 text-purple-600 dark:text-purple-400 hover:underline hover:text-purple-500"
-                        >
-                          <span>Live Demo</span>
-                          <ExternalLink size={14} />
-                        </a>
-                        <a 
-                          href={project.github} 
-                          className="flex items-center gap-1.5 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                        >
-                          <Github size={15} />
-                          <span>Code</span>
-                        </a>
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Skills / Technical Expertise Section */}
-      <section id="skills" className="py-20 bg-white dark:bg-slate-900/50 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          
-          {/* Section Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white mb-4">
-              {t.skillsTitle}
-            </h2>
-            <p className="text-base sm:text-lg text-slate-600 dark:text-slate-400">
-              {t.skillsSubtitle}
-            </p>
-          </div>
-
-          {/* Skill Groups */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {skillCategories.map((category, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: idx * 0.15 }}
-                className="p-6 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shadow-sm"
-              >
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-lg bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300 shadow">
-                    <category.icon size={20} />
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                    {category.title}
-                  </h3>
                 </div>
 
-                {/* List of Skills with Progress Bar */}
-                <div className="space-y-4.5">
-                  {category.skills.map((skill, sIdx) => (
-                    <div key={sIdx}>
-                      <div className="flex justify-between items-center mb-1.5 text-xs sm:text-sm">
-                        <span className="font-semibold text-slate-700 dark:text-slate-300">{skill.name}</span>
-                        <span className="font-bold text-purple-600 dark:text-purple-400 font-mono">{skill.level}%</span>
-                      </div>
-                      <div className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${skill.level}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 1, delay: sIdx * 0.1, ease: "easeOut" }}
-                          className="h-full bg-gradient-to-r from-purple-600 to-indigo-500 rounded-full"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
+                {/* CTA Action */}
+                <button
+                  className={`w-full font-bold py-3 px-6 rounded-xl text-sm transition-all duration-300 cursor-pointer ${plan.btnClass}`}
+                >
+                  {plan.price === 'Custom' ? 'Contact Quant Team' : 'Request Seat License'}
+                </button>
+              </div>
             ))}
           </div>
+
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            
-            {/* Information Side (Col-5) */}
-            <div className="lg:col-span-5 flex flex-col justify-between">
-              <div>
-                <h2 className="text-3xl sm:text-4xl font-black text-slate-950 dark:text-white mb-4">
-                  {t.contactTitle}
-                </h2>
-                <p className="text-base text-slate-600 dark:text-slate-400 mb-8 leading-relaxed">
-                  {t.contactSubtitle}
-                </p>
+      {/* Cinematic Call to Action and Footer */}
+      <section className="relative py-24 sm:py-32 overflow-hidden border-t border-slate-900 z-10">
+        
+        {/* Background Mesh Overlay */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-blue-600 to-purple-600 opacity-10 rounded-full filter blur-[120px] pointer-events-none" />
 
-                {/* Quick Info Cards */}
-                <div className="space-y-4.5">
-                  <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200/50 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-300">
-                      <Mail size={18} />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Email</span>
-                      <a href="mailto:info@digitalcraft.com" className="text-sm font-semibold hover:text-purple-600 dark:hover:text-purple-400 transition-colors">info@digitalcraft.com</a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200/50 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-indigo-500/10 dark:bg-indigo-500/20 flex items-center justify-center text-indigo-600 dark:text-indigo-300">
-                      <Phone size={18} />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Phone</span>
-                      <a href="tel:+201000000000" className="text-sm font-semibold hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors" dir="ltr">+20 100 000 0000</a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-4 p-4 rounded-xl border border-slate-200/50 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 shadow-sm">
-                    <div className="w-10 h-10 rounded-lg bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-300">
-                      <MapPin size={18} />
-                    </div>
-                    <div>
-                      <span className="block text-[11px] font-bold text-slate-400 uppercase tracking-wide">Location</span>
-                      <span className="text-sm font-semibold">{lang === 'ar' ? 'الجيزة، مصر' : 'Giza, Egypt'}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Social Icons inside Footer/Left Block */}
-              <div className="flex gap-3.5 mt-10">
-                {[
-                  { icon: Github, link: "#" },
-                  { icon: Mail, link: "#" },
-                  { icon: Phone, link: "#" },
-                ].map((social, sI) => (
-                  <a
-                    key={sI}
-                    href={social.link}
-                    className="w-11 h-11 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 flex items-center justify-center hover:scale-105 active:scale-95 transition-all shadow-sm"
-                  >
-                    <social.icon size={18} />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Form Side (Col-7) */}
-            <div className="lg:col-span-7">
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                className="p-6 sm:p-8 rounded-2xl border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-md relative"
-              >
-                <form onSubmit={handleContactSubmit} className="space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        {t.formName} *
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={contactForm.name}
-                        onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 transition-colors"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                        {t.formEmail} *
-                      </label>
-                      <input
-                        type="email"
-                        required
-                        value={contactForm.email}
-                        onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                      {t.formSubject}
-                    </label>
-                    <input
-                      type="text"
-                      value={contactForm.subject}
-                      onChange={(e) => setContactForm({ ...contactForm, subject: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 transition-colors"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide mb-2">
-                      {t.formMessage} *
-                    </label>
-                    <textarea
-                      required
-                      rows={4}
-                      value={contactForm.message}
-                      onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-955 text-sm focus:outline-none focus:border-purple-500 dark:focus:border-purple-400 transition-colors resize-none"
-                    />
-                  </div>
-
-                  {/* Submit state message */}
-                  <AnimatePresence>
-                    {submitStatus === 'success' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="p-3.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2"
-                      >
-                        <CheckCircle2 size={16} />
-                        <span>{t.formSuccess}</span>
-                      </motion.div>
-                    )}
-                    {submitStatus === 'error' && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -10 }}
-                        className="p-3.5 bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs sm:text-sm font-bold rounded-xl flex items-center gap-2"
-                      >
-                        <X size={16} />
-                        <span>{t.formError}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold py-3.5 rounded-xl transition-all shadow-lg shadow-purple-500/10 flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-70 cursor-pointer"
-                  >
-                    <span>{isSubmitting ? t.formSending : t.formSubmit}</span>
-                    <Send size={15} className={lang === 'ar' ? 'rotate-180' : ''} />
-                  </button>
-                </form>
-              </motion.div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="py-10 border-t border-slate-200/60 dark:border-slate-900 bg-slate-50/50 dark:bg-slate-950/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center flex flex-col md:flex-row items-center justify-between gap-4 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-          <div>
-            <span className="font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-indigo-400">
-              {lang === 'ar' ? 'نبذة رقمية' : 'DigitalCraft'}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          
+          <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
+            <span className="text-xs font-black text-purple-400 uppercase tracking-widest block animate-pulse">
+              Limited Availability Pitches
             </span>
+            <h2 className="text-4xl sm:text-6xl font-black tracking-tight text-white leading-none">
+              Deploy Nexora. Secure Your Alpha Advantage.
+            </h2>
+            <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-2xl mx-auto">
+              Schedule a dedicated pitch with our founding team and quantitative architects. Experience bespoke neural models tailored for your assets.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+              <a 
+                href="#pricing-section"
+                className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-bold py-4 px-8 rounded-xl transition-all shadow-lg shadow-blue-500/25 cursor-pointer hover:-translate-y-0.5 active:scale-95"
+              >
+                <span>Book Founding Pitch</span>
+                <ArrowRight size={16} />
+              </a>
+              <a 
+                href="mailto:ventures@nexora.ai"
+                className="w-full sm:w-auto text-center flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-slate-200 hover:text-white border border-slate-800 hover:border-slate-700 font-bold py-4 px-8 rounded-xl transition-all hover:-translate-y-0.5 active:scale-95"
+              >
+                <span>Contact Founding Team</span>
+                <Mail size={16} />
+              </a>
+            </div>
           </div>
-          <p>{t.footerText}</p>
-          <div className="flex items-center gap-4.5">
-            <a href="#home" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">{t.navHome}</a>
-            <a href="#services" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">{t.navServices}</a>
-            <a href="#projects" className="hover:text-purple-600 dark:hover:text-purple-400 transition-colors">{t.navProjects}</a>
+
+          {/* Glowing Divider */}
+          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-slate-800 to-transparent my-16 sm:my-20" />
+
+          {/* Real footer details */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-slate-500 text-xs sm:text-sm font-semibold">
+            
+            {/* Left Brand Details */}
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                <Sparkles size={15} />
+              </div>
+              <span className="text-white font-black tracking-widest text-sm">NEXORA</span>
+              <span className="text-[10px] text-slate-600 border border-slate-900 bg-slate-950 px-2 py-0.5 rounded">
+                © 2026 NEXORA SYSTEMS
+              </span>
+            </div>
+
+            {/* Middle Quick Links */}
+            <div className="flex flex-wrap justify-center gap-6 text-slate-400">
+              <a href="#features-section" className="hover:text-white transition-colors">Platform</a>
+              <a href="#dashboard-section" className="hover:text-white transition-colors">Quantitative Model</a>
+              <a href="#testimonial-section" className="hover:text-white transition-colors">Client Reviews</a>
+              <a href="#pricing-section" className="hover:text-white transition-colors">Licensing Plans</a>
+              <a href="#" className="hover:text-white transition-colors">Sec Safe Harbor</a>
+            </div>
+
+            {/* Right Social/Safety */}
+            <div className="flex items-center gap-3">
+              <a 
+                href="#" 
+                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-950 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
+                aria-label="GitHub Link"
+              >
+                <Github size={15} />
+              </a>
+              <a 
+                href="#" 
+                className="w-9 h-9 rounded-lg border border-slate-900 bg-slate-950 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-colors"
+                aria-label="Linkedin Link"
+              >
+                <Linkedin size={15} />
+              </a>
+            </div>
+
           </div>
+
+          {/* SEC Disclaimer Notice */}
+          <p className="text-slate-600 text-[10px] text-left leading-relaxed mt-12 pt-6 border-t border-slate-900/60 font-mono">
+            SEC SAFE HARBOR DISCLAIMER: Nexora is a fictional AI-powered financial analytics SaaS product built solely for demonstration purposes as an investor-pitch mockup. All metrics, yields, strategies, and portfolio gains visualized on this page are backtested simulations, models, or speculative hypotheses, and do not constitute real investments, registered financial advisory services, or guarantees of yield under sovereign security acts. Past simulation performance does not guarantee actual market outcomes. Live integrations with order books are subject to execution risks and exchange latency.
+          </p>
+
         </div>
-      </footer>
+      </section>
 
     </div>
   )
 }
-
-export default App
